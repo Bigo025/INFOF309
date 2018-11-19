@@ -17,6 +17,8 @@ EOF
 		read interface_v
 		echo -n "IP adress of virtual interface :"
 		read ip_add
+		echo -n "VIP(Virtual IP) adress of virtual interface :"
+		read ip_add_v
 		echo -n "Netmask :"
 		read netmask
 		echo -n "Gateway :"
@@ -43,15 +45,23 @@ slaves $interface1 $interface2
 bond_mode balance-rr
 bond_miimons 100
 bond_downdelay 200
-bond_updelay 200 " >> /etc/network/interfaces
+bond_updelay 200
+
+## Configuration de l'adresse IP virtuelle de $interface_v en mode Statique
+auto $interface_v:0
+iface $interface_v:0 inet static
+address $ip_add_v
+netmask 255.255.255.255 " >> /etc/network/interfaces
 
 	## Si la dernière commande est correctement exécutée, on affiche
 
 		if [ $? = "0" ]; then
 			echo "[INFO]: Configuration data was successfully written"
 
-      ##puis on active l'interface virtual
+      ##puis on active l'interface virtual (carte reseau)
       ifup $interface_v
+			##puis on active l'interface virtual de la VIP
+			ifup $interface_v:0
 			sleep 2
 		fi
 
