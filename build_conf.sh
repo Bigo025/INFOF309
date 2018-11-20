@@ -1,7 +1,15 @@
 #!/bin/bash
 #-------------------------------
 #    script pour configurer automatiquement les machine
+#
+#  information a avoir avant de lancer le script:
+# * adresse IP reel (physique) des deux serveur
+# * adresse IP virtual du serveur master
+# * nom machine du serveur secondaire : executer la cmd  "uname -n"
+# * nom du deuxieme disk de sauvegarde du master executer la cmd  "fdisk -l"
+# * un mot de passe pour lechange de fichier entes les serveur
 #-------------------------------
+
 
 #-----------------------------------------------------------
 #  partie 1: installation des dependencies necessaire
@@ -107,6 +115,145 @@ configuration of data sharing stored
 
 EOF
 
+cat << EOF
+--------------------------------
+[INFO]:storage device detection
+--------------------------------
+wait....
+
+EOF
+
 sleep 3
 
-drbd0.res
+fdisk -l
+
+sleep 3
+
+echo -n "select device (example :sdb,sdc,sda...) :"
+read $dev
+
+echo -n "secondary server name (run the \"uname -n\" command on this host) :"
+read $name_s2
+
+echo -n "password to secure the exchange (must be the same on the secondary host) :"
+read $password
+
+name_s1=$(uname -n)
+
+  #si c'est le disk principale ne rien faire
+  if [$dev = "sda"]
+
+    then
+
+      echo ""
+
+    else
+
+      clear
+
+      cat << EOF
+------------------------------------------------
+[INFO]:creating a partition on the second disks
+------------------------------------------------
+list of parameters to enter :
+* command           : "n"
+* Partition type    : "p"
+* Partition number  : enter for defaul value
+* First sector      : enter for defaul value
+* Last sector       : enter for defaul value
+* command           : "w"
+
+EOF
+
+    sleep 5
+
+    # création d'une partition sur le second disque
+    fdisk /dev/$dev
+
+    #creation du fichier de configuration pour la resource
+    echo "
+
+resource r0 {
+        protocol C;
+
+
+        startup {
+                degr-wfc-timeout 120;
+                wfc-timeout 30 ;
+        }
+
+        disk {
+                on-io-error detach;
+        }
+
+        net {
+                cram-hmac-alg sha1;
+                shared-secret \"$password\";
+                after-sb-0pri disconnect;
+                after-sb-1pri disconnect;
+                after-sb-2pri disconnect;
+                rr-conflict disconnect;
+        }
+
+        syncer {
+                rate 100M;
+                verify-alg sha1;
+                al-extents 257;
+        }
+
+        on $name_s1 {
+                device /dev/drbd0;
+                disk /dev/\"$dev\"1;
+                address $RIP1:7788;
+                meta-disk internal;
+        }
+
+        on $name_s2 {
+                device /dev/drbd0;
+                disk /dev/\"$dev\"1;
+                address $RIP1:7788;
+                meta-disk internal;
+        }
+}
+    " >> /etc/drbd.d/drbd0.res
+
+    #
+    drbdadm create-md r0
+
+    #activation du module drbd
+    modprobe drbd
+
+    #demarrage de la configuration de la resource
+    drbdadm up r0
+
+    #
+    drbd-overview
+
+    sleep 3
+
+    ##########uniquemet sur le primay#3#####################
+    #on defini ce noeud comme etant le Primary (noeud master) & debut de la synchronisation
+    drbdadm -- --overwrite-data-of-peer primary r0
+
+    cat << EOF
+    --------------------------------------------------------
+    [INFO]:in 100% enter "Crlt+c" to continue configuration
+    -------------------------------------------------------
+    wait....
+EOF
+
+    sleep 10
+
+    #evolution de la synchronisation
+    watch -n 1 cat /proc/drbd
+
+    sleep 3
+
+    ##formater du lecteur drbd0, en ext4 :
+    mkfs.ext4 /dev/drbd0
+
+    ##########uniquemet sur le secondaire######################
+    drbdadm secondary r0
+
+
+fi
