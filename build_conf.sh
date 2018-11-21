@@ -40,10 +40,66 @@ apt-get install -y drbd8-utils
 #--------------------------------------------------------------------
 #  partie 2: Configuration des interfaces reseaux via network_conf.sh
 #--------------------------------------------------------------------
-cp dual_ethernet.conf /etc/modprobe.d/
+clear
 
-modprobe -v bonding mode=0 arp_interval=2000 arp_ip_target=192.168.122.1
-/network_conf.sh
+cat << EOF
+-------------------------------------
+Configuration Ethernet N1
+-------------------------------------
+
+EOF
+
+echo -n "Name of the Ethernet interface n1 :"
+read interface1
+echo -n "Name of the Ethernet interface n2 :"
+read interface2
+echo -n "Name of the Ethernet interface virtual (dualeth0) :"
+#nterface_v=dualeth0
+read interface_v
+echo -n "IP adress of  interface :"
+read RIP1
+echo -n "Netmask :"
+read netmask
+echo -n "Gateway :"
+read gateway
+echo -n "DNS Server :"
+read nameserver
+echo -n "IP adress of  second server :"
+read RIP2
+echo -n "VIP(Virtual IP) adress of virtual interface :"
+read VIP
+
+clear
+cat << EOF
+-----------------------------------
+Configuration Ethernet N2
+-----------------------------------
+
+EOF
+    echo -n "Name of the Ethernet interface n3"
+    read interface3
+    echo -n "IP adress:"
+    read RIP3
+    echo -n "Netmask:"
+    read netmask3
+    echo -n "Gateway:"
+    read gateway3
+
+#creation du fichier de configuration du bonding
+
+echo "
+alias $interface_v dual_ethernet
+options dual_ethernet mode=0 arp_interval=2000 arp_ip_target=$RIP1
+
+" >> /etc/modprobe.d/dual_ethernet.conf
+
+#execusion de la commande, Si jamais le pilote n’est pas chargé automatiquement
+modprobe -v bonding mode=0 arp_interval=2000 arp_ip_target=$RIP1
+
+#creation d'un tableau pour mieux ramger les donnee saisi par le user
+tab=('$interface1' '$interface2' '$interface_v' '$RIP1' '$netmask' '$gateway' '$nameserver' '$VIP' '$interface3' '$RIP3' 'netmask3' 'gateway3')
+
+/network_conf.sh "${tab[*]}"
 
 #--------------------------------------------------------------------
 #  partie 3: Configuration du Load balancing
@@ -58,13 +114,6 @@ Configuration Load balancing
 EOF
 
 sleep 3
-
-    echo -n "Virtual adress :"
-    read $VIP
-    echo -n "adress Server_1 :"
-    read $RIP1
-    echo -n "adress Server_2 :"
-    read $RIP2
 
     ipvsadm -A -t $VIP:80 -s rr
     ipvsadm –a –t $VIP:80 –r $RIP1:80 –g
@@ -145,7 +194,7 @@ name_s1=$(uname -n)
 
     then
 
-      echo ""
+      echo " partition principal "
 
     else
 
@@ -253,7 +302,7 @@ EOF
     mkfs.ext4 /dev/drbd0
 
     ##########uniquemet sur le secondaire######################
-    drbdadm secondary r0
+    # drbdadm secondary r0
 
 
 fi
