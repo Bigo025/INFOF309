@@ -1,0 +1,19 @@
+##sur les deux poste  executer
+
+drbdmdadm create-md r0
+
+modprobe drbd
+
+drbdadm up r0
+
+##uniquemet sur le primay
+
+drbdsetup /dev/drbd0 syncer -r 100M  #acceler la syncro a une debir de 100Mbit
+drbdadm -- --overwrite-data-of-peer primary r0 #synchronisation en cour, voir : watch -n 1 cat /proc/drbd
+drbdadm adjust nfs # revenir à un débit de synchronisation normal
+
+## formater du lecteur drbd0, en ext4 :
+mkfs.ext4 /dev/drbd0
+
+##uniquemetsur le secondaire
+drbdadm secondary r0
