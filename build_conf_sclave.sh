@@ -78,6 +78,21 @@ EOF
     read gateway3
 
 #creation du fichier de configuration du bonding
+###############################
+interface1=enp0s3
+interface2=enp0s8
+interface_v=dualeth0
+RIP1=192.168.122.2
+netmask=255.255.255.0
+gateway=192.168.122.2
+nameserver=8.8.8.8
+RIP2=192.168.122.1
+VIP=192.168.122.10
+interface3=enp0s9
+RIP3=10.10.1.2
+netmask3=255.0.0.0
+gateway3=10.10.1.2
+############################
 
 echo "
 alias $interface_v dual_ethernet
@@ -93,10 +108,22 @@ tab=($interface1 $interface2 $interface_v $RIP1 $netmask $gateway $nameserver $V
 
 ./network_conf_slave.sh "${tab[*]}"
 
+cat << EOF
+--------------------------------
+[OK]:CONFIGURATION NETWORK
+--------------------------------
+Dans cette partie les deux serveur ddoivent etres synchone
+
+taper "ENTRE" pour continuer
+EOF
+
 
 #--------------------------------------------------------------------
 #  partie 3: Configuration ARP loopback pour le Load balancing
 #--------------------------------------------------------------------
+
+read -p "SUISTE SUR MASTER" continu
+
 clear
 
 cat << EOF
@@ -107,13 +134,6 @@ Configuration ARP loopback for Load balancing
 EOF
 
 sleep 3
-
-    echo -n "Virtual adress :"
-    read $VIP
-    echo -n "adress Server_1 :"
-    read $RIP1
-    echo -n "adress Server_2 :"
-    read $RIP2
 
 echo "
 net.ipv4.conf.all.arp_ignore=1
@@ -139,14 +159,7 @@ echo "[INFO]: Restarting the service..."
 #activation de la VIP sur lo:0
 ifup lo:0
 
-cat << EOF
---------------------------------
-[OK]:CONFIGURATION NETWORK
---------------------------------
-Dans cette partie les deux serveur ddoivent etres synchone
 
-taper "ENTRE" pour continuer
-EOF
 
 read continu
 

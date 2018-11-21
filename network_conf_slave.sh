@@ -41,8 +41,7 @@ Configuration Ethernet N1
 EOF
 
   ## On desactive les deux interface ultilisr pour l'adregation.
-ifdown ${data[0]}
-ifdown ${data[1]}
+
 
 	## Copie des paramètres dans le fichier de configuration
 
@@ -65,7 +64,17 @@ slaves ${data[0]} ${data[1]}
 bond_mode balance-rr
 bond_miimons 100
 bond_downdelay 200
-bond_updelay 200 " > /etc/network/interfaces
+bond_updelay 200
+
+auto ${data[0]}
+iface ${data[0]} inet dhcp
+
+auto ${data[1]}
+iface ${data[1]} inet dhcp " > /etc/network/interfaces
+
+## On desactive les deux interface ultilisr pour l'adregation.
+ifdown ${data[0]}
+ifdown ${data[1]}
 
 	## Si la dernière commande est correctement exécutée, on affiche
 
@@ -74,17 +83,9 @@ bond_updelay 200 " > /etc/network/interfaces
 
       ##puis on active l'interface virtual (carte reseau)
       ifup ${data[2]}
-			##puis on active l'interface virtual de la VIP
-			ifup ${data[2]}:0
+
 			sleep 2
 		fi
-
-    ## redémarrage du service...
-    echo "[INFO]: Restarting the service..."
-
-/etc/init.d/networking restart
-#	sleep 5
-#		$0
 
 cat << EOF
 -----------------------------------
@@ -95,22 +96,25 @@ EOF
 
 		echo "
 ## Configuration de ${data[8]} en mode dynamique
-auto ${data[8]}
-iface ${data[8]} inet static
-	address ${data[9]}
-	netmask ${data[10]}
-	gateway ${data[11]}
-	dns-nameservers ${data[6]}" >> /etc/network/interfaces
+#auto ${data[8]}
+#iface ${data[8]} inet static
+#address ${data[9]}
+#netmask ${data[10]}
+#gateway ${data[11]}
+#dns-nameservers ${data[6]}" >> /etc/network/interfaces
 
 
 		if [ $? = "0" ]; then
-			echo "Configuration data was successfully written"
-
+      cat << EOF
+      -----------------------------------
+      [INFO]Configuration data was successfully written
+      -----------------------------------
+EOF
       ## redémarrage du service...
-			echo "[INFO]: Restarting the service..."
+			#echo "[INFO]: Restarting the service..."
 
 	/etc/init.d/networking restart
 
 	sleep 5
-			$0
+
 		fi

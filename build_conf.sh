@@ -87,6 +87,21 @@ EOF
 
 #creation du fichier de configuration du bonding
 
+###############################
+interface1=enp0s3
+interface2=enp0s8
+interface_v=dualeth0
+RIP1=192.168.122.1
+netmask=255.255.255.0
+gateway=192.168.122.1
+nameserver=8.8.8.8
+RIP2=192.168.122.2
+VIP=192.168.122.10
+interface3=enp0s9
+RIP3=10.10.1.1
+netmask3=255.0.0.0
+gateway3=10.10.1.1
+############################
 echo "
 alias $interface_v dual_ethernet
 options dual_ethernet mode=0 arp_interval=2000 arp_ip_target=$RIP1
@@ -101,9 +116,22 @@ tab=($interface1 $interface2 $interface_v $RIP1 $netmask $gateway $nameserver $V
 
 ./network_conf.sh "${tab[*]}"
 
+
+cat << EOF
+--------------------------------
+[OK]:CONFIGURATION NETWORK
+--------------------------------
+Dans cette partie les deux serveur ddoivent etres synchone
+
+taper "ENTRE" pour continuer
+EOF
+
 #--------------------------------------------------------------------
 #  partie 3: Configuration du Load balancing
 #--------------------------------------------------------------------
+
+read -p "EN ATTENTE DU SERVEUR SECONDAIRE (SUISTE SUR MASTER) SUITE 1/2" continu
+
 clear
 
 cat << EOF
@@ -145,6 +173,8 @@ echo "[INFO]: Restarting the service..."
 #activation de la VIP sur lo:0
 ifup lo:0
 
+read -p "EN ATTENTE DU SERVEUR SECONDAIRE SUITE 2/2" continu
+
 #sauvegarde des configuration de ipvsadm pour etre effectif lors du reboot
 ipvsadm -Sn > /etc/ipvsadm_rules
 
@@ -152,14 +182,7 @@ ipvsadm -Sn > /etc/ipvsadm_rules
 ipvsadm -Ln
 sleep 7
 
-cat << EOF
---------------------------------
-[OK]:CONFIGURATION NETWORK
---------------------------------
-Dans cette partie les deux serveur ddoivent etres synchone
 
-taper "ENTRE" pour continuer
-EOF
 
 read continue
 
