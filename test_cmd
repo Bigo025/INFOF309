@@ -17,3 +17,16 @@ mkfs.ext4 /dev/drbd0
 
 ##uniquemetsur le secondaire
 drbdadm secondary r0
+
+############################ POUR MES TESTE ############################
+
+1) SUR LE master
+
+#######verifier le nombre d'actif sur les deux server
+watch -n 0,2 ipvsadm -Ln
+watch -n 0,2 ipvsadm -L -c -n
+
+
+
+
+2) SUR LE SECONDAIRE
