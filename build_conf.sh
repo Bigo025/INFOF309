@@ -97,9 +97,9 @@ options dual_ethernet mode=0 arp_interval=2000 arp_ip_target=$RIP1
 modprobe -v bonding mode=0 arp_interval=2000 arp_ip_target=$RIP1
 
 #creation d'un tableau pour mieux ramger les donnee saisi par le user
-tab=('$interface1' '$interface2' '$interface_v' '$RIP1' '$netmask' '$gateway' '$nameserver' '$VIP' '$interface3' '$RIP3' 'netmask3' 'gateway3')
+tab=($interface1 $interface2 $interface_v $RIP1 $netmask $gateway $nameserver $VIP $interface3 $RIP3 $netmask3 $gateway3)
 
-/network_conf.sh "${tab[*]}"
+./network_conf.sh "${tab[*]}"
 
 #--------------------------------------------------------------------
 #  partie 3: Configuration du Load balancing
