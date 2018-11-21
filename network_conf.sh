@@ -47,6 +47,12 @@ ifdown ${data[1]}
 	## Copie des paramètres dans le fichier de configuration
 
 echo "
+source /etc/network/interfaces.d/*
+
+## the loopback network interface
+auto lo
+iface lo inet loopback
+
 ## Configuration de ${data[2]} en mode Statique
 
 auto ${data[2]}
@@ -65,7 +71,7 @@ bond_updelay 200
 auto ${data[2]}:0
 iface ${data[2]}:0 inet static
 address ${data[7]}
-netmask 255.255.255.255 " >> /etc/network/interfaces
+netmask 255.255.255.255 " > /etc/network/interfaces
 
 	## Si la dernière commande est correctement exécutée, on affiche
 

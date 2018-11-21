@@ -91,7 +91,7 @@ echo "
 alias $interface_v dual_ethernet
 options dual_ethernet mode=0 arp_interval=2000 arp_ip_target=$RIP1
 
-" >> /etc/modprobe.d/dual_ethernet.conf
+" > /etc/modprobe.d/dual_ethernet.conf
 
 #execusion de la commande, Si jamais le pilote n’est pas chargé automatiquement
 modprobe -v bonding mode=0 arp_interval=2000 arp_ip_target=$RIP1
@@ -152,6 +152,16 @@ ipvsadm -Sn > /etc/ipvsadm_rules
 ipvsadm -Ln
 sleep 7
 
+cat << EOF
+--------------------------------
+[OK]:CONFIGURATION NETWORK
+--------------------------------
+Dans cette partie les deux serveur ddoivent etres synchone
+
+taper "ENTRE" pour continuer
+EOF
+
+read continue
 
 #--------------------------------------------------------------
 #  partie 4: Configuration de drbd8 pour le partage du stocage
@@ -214,7 +224,7 @@ list of parameters to enter :
 
 EOF
 
-    sleep 5
+    read -p " ENTRE pour continue" continu
 
     # création d'une partition sur le second disque
     fdisk /dev/$dev
@@ -260,25 +270,29 @@ resource r0 {
         on $name_s2 {
                 device /dev/drbd0;
                 disk /dev/\"$dev\"1;
-                address $RIP1:7788;
+                address $RIP2:7788;
                 meta-disk internal;
         }
 }
     " >> /etc/drbd.d/drbd0.res
 
+    read -p "create-md r0 : ENTRE pour continue" continu
     #
     drbdadm create-md r0
 
+    read -p "activation du module drbd : ENTRE pour continue" continu
     #activation du module drbd
     modprobe drbd
 
+    read -p "demarrage drbd : ENTRE pour continue" continu
     #demarrage de la configuration de la resource
     drbdadm up r0
 
+    read -p "overview drbd : ENTRE pour continue" continu
     #
     drbd-overview
 
-    sleep 3
+    read -p "synchronisation drbd : ENTRE pour continue" continu
 
     ##########uniquemet sur le primay#3#####################
     #on defini ce noeud comme etant le Primary (noeud master) & debut de la synchronisation
@@ -298,11 +312,8 @@ EOF
 
     sleep 3
 
+    #uniquement sur le noeud principale
     ##formater du lecteur drbd0, en ext4 :
     mkfs.ext4 /dev/drbd0
-
-    ##########uniquemet sur le secondaire######################
-    # drbdadm secondary r0
-
 
 fi

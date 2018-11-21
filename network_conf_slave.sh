@@ -2,48 +2,70 @@
 #-------------------------------
 #    Configuration du réseau les machine secondaire (esclaves)
 #-------------------------------
-clear
+
+#prend le premiere parametre (variables env) et le met dans une autre variables pour falite le traitement
+tab2=$1
+
+#recuperation des donne tu tableau $tab2
+j=0
+for i in ${tab2[*]}
+
+	do
+		#creer un table data[] et insert chaque element dans le tableau
+		data[$j]=$i
+		((j++))
+	done
+
+	###################Contenue des variables ###########
+	#																										#
+	#		${data[0]}  	=	eth0 interface1									#
+	#		${data[1]} 		= eth1 interface2									#
+	#		${data[2]} 		=	dualeth0 interface_v						#
+	#		${data[3]} 		=	RIP2 ip_add											#
+	#		${data[4]} 		=	netmask													#
+	#		${data[5]} 		=	gateway													#
+	#		${data[7]} 		=	VIP ip_add_v										#
+	#		${data[6]} 		=	nameserver											#
+	#		${data[8]} 		=	interface3											#
+	#		${data[9]}  	=	RIP3														#
+	#		${data[10]} 	=	netmask3												#
+	#		${data[11]} 	=	gateway3												#
+	#																										#
+	######################################################
+
 cat << EOF
 -------------------------------------
 Configuration Ethernet N1
 -------------------------------------
 
 EOF
-		echo -n "Name of the Ethernet interface n1 :"
-		read interface1
-    echo -n "Name of the Ethernet interface n2 :"
-		read interface2
-    echo -n "Name of the Ethernet interface virtual (dualeth0) :"
-		read interface_v
-		echo -n "IP adress of virtual interface :"
-		read ip_add
-		echo -n "Netmask :"
-		read netmask
-		echo -n "Gateway :"
-		read gateway
-		echo -n "DNS Server :"
-		read nameserver
 
   ## On desactive les deux interface ultilisr pour l'adregation.
-ifdown $interface1
-ifdown $interface2
+ifdown ${data[0]}
+ifdown ${data[1]}
 
 	## Copie des paramètres dans le fichier de configuration
 
 echo "
-## Configuration de $interface_v en mode Statique
+source /etc/network/interfaces.d/*
 
-auto $interface_v
-iface $interface_v inet static
-address $ip_add
-netmask $netmask
-getway $gateway
+## the loopback network interface
+auto lo
+iface lo inet loopback
+
+## Configuration de ${data[2]} en mode Statique
+
+auto ${data[2]}
+iface ${data[2]} inet static
+address ${data[3]}
+netmask ${data[4]}
+getway ${data[5]}
 mtu 9000
-slaves $interface1 $interface2
+slaves ${data[0]} ${data[1]}
 bond_mode balance-rr
 bond_miimons 100
 bond_downdelay 200
-bond_updelay 200 " >> /etc/network/interfaces
+bond_updelay 200 " > /etc/network/interfaces
 
 	## Si la dernière commande est correctement exécutée, on affiche
 
@@ -51,9 +73,9 @@ bond_updelay 200 " >> /etc/network/interfaces
 			echo "[INFO]: Configuration data was successfully written"
 
       ##puis on active l'interface virtual (carte reseau)
-      ifup $interface_v
+      ifup ${data[2]}
 			##puis on active l'interface virtual de la VIP
-			ifup $interface_v:0
+			ifup ${data[2]}:0
 			sleep 2
 		fi
 
@@ -70,23 +92,15 @@ Configuration Ethernet N2
 -----------------------------------
 
 EOF
-    echo -n "Name of the Ethernet interface n3"
-    read interface
-    echo -n "IP adress:"
-    read ip_add
-    echo -n "Netmask:"
-    read netmask
-    echo -n "Gateway:"
-    read gateway
 
 		echo "
-## Configuration de $interface en mode dynamique
-auto $interface
-iface $interface inet static
-	address $ip_add
-	netmask $netmask
-	gateway $gateway
-	dns-nameservers $nameserver" >> /etc/network/interfaces
+## Configuration de ${data[8]} en mode dynamique
+auto ${data[8]}
+iface ${data[8]} inet static
+	address ${data[9]}
+	netmask ${data[10]}
+	gateway ${data[11]}
+	dns-nameservers ${data[6]}" >> /etc/network/interfaces
 
 
 		if [ $? = "0" ]; then
