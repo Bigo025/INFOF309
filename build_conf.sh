@@ -141,13 +141,17 @@ Configuration Load balancing
 
 EOF
 
-sleep 3
+sleep 4
 
-    ipvsadm -A -t $VIP:80 -s rr
-    ipvsadm –a –t $VIP:80 –r $RIP1:80 –g
-    ipvsadm –a –t $VIP:80 –r $RIP2:80 –g
-
+ipvsadm -A -t $VIP:80 -s rr
+sleep 4
+ipvsadm –a –t $VIP:80 –r $RIP1:80 –g
+sleep 4
+ipvsadm –a –t $VIP:80 –r $RIP2:80 –g
+sleep 4
 #configuration a effectuer sur les deux serveur web
+
+read -p "STOP :SUITE AJOUTE DE arp.arp_ignore et lo:0 + restart network"
 
 echo "
 net.ipv4.conf.all.arp_ignore=1
