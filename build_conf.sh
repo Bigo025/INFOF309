@@ -142,13 +142,41 @@ Configuration Load balancing
 EOF
 
 sleep 4
-
+cat << EOF
+------------------------------------------------------------------------
+[INFO] : STEP_1 : load balancing on the VIP for packets to port 80
+------------------------------------------------------------------------
+EOF
 ipvsadm -A -t $VIP:80 -s rr
 sleep 4
-ipvsadm –a –t $VIP:80 –r $RIP1:80 –g
+
+cat << EOF
+------------------------------------------------------------------------
+[INFO] : STEP_2 :adds servers $RIP1 in load balancing
+------------------------------------------------------------------------
+EOF
+ipvsadm -a -t $VIP:80 -r $RIP1:80 -g
 sleep 4
-ipvsadm –a –t $VIP:80 –r $RIP2:80 –g
+
+cat << EOF
+------------------------------------------------------------------------
+[INFO] : STEP_3 :adds servers $RIP2 in load balancing
+------------------------------------------------------------------------
+EOF
+ipvsadm -a -t $VIP:80 -r $RIP2:80 -g
 sleep 4
+
+
+cat << EOF
+------------------------------------------------------------------------
+[INFO] : list of load-balancing rules
+------------------------------------------------------------------------
+EOF
+
+ipvsadm -Ln
+echo "------------------------------------------------------------------"
+sleep 7
+
 #configuration a effectuer sur les deux serveur web
 
 read -p "STOP :SUITE AJOUTE DE arp.arp_ignore et lo:0 + restart network"
@@ -183,10 +211,6 @@ read -p "EN ATTENTE DU SERVEUR SECONDAIRE SUITE 2/2" continu
 ipvsadm -Sn > /etc/ipvsadm_rules
 
 #affiche les informations à propos du resume du Load balancing
-ipvsadm -Ln
-sleep 7
-
-
 
 read continue
 
