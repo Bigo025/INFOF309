@@ -45,7 +45,7 @@ echo -n "Name of the Ethernet interface n1 :"
 read interface1
 echo -n "Name of the Ethernet interface n2 :"
 read interface2
-echo -n "Name of the Ethernet interface virtual (dualeth0) :"
+echo -n "Name of the Ethernet interface virtual (bond0) :"
 #nterface_v=dualeth0
 read interface_v
 echo -n "IP adress of  interface :"
@@ -81,7 +81,7 @@ EOF
 ###############################
 interface1=enp0s3
 interface2=enp0s8
-interface_v=dualeth0
+interface_v=bond0
 RIP1=192.168.122.2
 netmask=255.255.255.0
 gateway=192.168.122.2
@@ -95,10 +95,10 @@ gateway3=10.10.1.2
 ############################
 
 echo "
-alias $interface_v dual_ethernet
-options dual_ethernet mode=0 arp_interval=2000 arp_ip_target=$RIP1
+alias $interface_v bonding
+options bonding mode=0 arp_interval=2000 arp_ip_target=$RIP1
 
-" > /etc/modprobe.d/dual_ethernet.conf
+" > /etc/modprobe.d/bonding.conf
 
 #execusion de la commande, Si jamais le pilote n’est pas chargé automatiquement
 modprobe -v bonding mode=0 arp_interval=2000 arp_ip_target=$RIP1
