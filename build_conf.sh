@@ -17,13 +17,16 @@
 apt-get update
 
 cat << EOF
------------------------------------
+----------------------------------------------------------------
 [INFO]: wait to installing dependencies
------------------------------------
+----------------------------------------------------------------
 
 EOF
 
 sleep 4
+
+echo "[INFO]: ifenslave installation for Ethernet link aggregation"
+apt-get install -y apache2
 
 echo "[INFO]: ifenslave installation for Ethernet link aggregation"
 apt-get install -y ifenslave
@@ -43,9 +46,9 @@ apt-get install -y drbd8-utils
 clear
 
 cat << EOF
--------------------------------------
+------------------------------------------------------------------
 Configuration Ethernet N1
--------------------------------------
+------------------------------------------------------------------
 
 EOF
 
@@ -71,9 +74,9 @@ read VIP
 
 clear
 cat << EOF
------------------------------------
+----------------------------------------------------------------
 Configuration Ethernet N2
------------------------------------
+----------------------------------------------------------------
 
 EOF
     echo -n "Name of the Ethernet interface n3"
@@ -118,26 +121,30 @@ tab=($interface1 $interface2 $interface_v $RIP1 $netmask $gateway $nameserver $V
 
 
 cat << EOF
---------------------------------
+-------------------------------------------------------------
 [OK]:CONFIGURATION NETWORK
---------------------------------
-Dans cette partie les deux serveur ddoivent etres synchone
+-------------------------------------------------------------
 
-taper "ENTRE" pour continuer
 EOF
 
 #--------------------------------------------------------------------
 #  partie 3: Configuration du Load balancing
 #--------------------------------------------------------------------
+cat << EOF
+--------------------------------------------------------------------
+[INFO]:ATTENDRE LA CONFIRMATION "[OK]:ARP" DU SECONDAIRE pour continue
+--------------------------------------------------------------------
 
-read -p "EN ATTENTE DU SERVEUR SECONDAIRE (SUISTE SUR MASTER) SUITE 1/2" continu
+EOF
+
+read continu
 
 clear
 
 cat << EOF
------------------------------------
+----------------------------------------------------------------
 Configuration Load balancing
------------------------------------
+----------------------------------------------------------------
 EOF
 sleep 4
 
@@ -151,7 +158,7 @@ ipvsadm -a -t $VIP:80 -r $RIP1:80 -g
 sleep 4
 
 
-echo "[INFO] : STEP_2 :adds servers $RIP2 in load balancing"
+echo "[INFO] : STEP_3 :adds servers $RIP2 in load balancing"
 ipvsadm -a -t $VIP:80 -r $RIP2:80 -g
 sleep 4
 
@@ -161,14 +168,14 @@ cat << EOF
 [INFO] : list of load-balancing rules
 ------------------------------------------------------------------------
 EOF
-
+#affiche les informations à propos du resume du Load balancing
 ipvsadm -Ln
+
 echo "------------------------------------------------------------------"
+
 sleep 7
 
 #configuration a effectuer sur les deux serveur web
-
-read -p "STOP :SUITE AJOUTE DE arp.arp_ignore et lo:0 + restart network"
 
 echo "
 net.ipv4.conf.all.arp_ignore=1
@@ -194,14 +201,15 @@ echo "[INFO]: Restarting the service..."
 #activation de la VIP sur lo:0
 ifup lo:0
 
-read -p "EN ATTENTE DU SERVEUR SECONDAIRE SUITE 2/2" continu
-
 #sauvegarde des configuration de ipvsadm pour etre effectif lors du reboot
 ipvsadm -Sn > /etc/ipvsadm_rules
 
-#affiche les informations à propos du resume du Load balancing
+cat << EOF
+-------------------------------------------------------------
+[OK]: configuration load balancing
+-------------------------------------------------------------
 
-read continue
+EOF
 
 #--------------------------------------------------------------
 #  partie 4: Configuration de drbd8 pour le partage du stocage
@@ -210,16 +218,17 @@ read continue
 clear
 
 cat << EOF
-------------------------------------
+-----------------------------------------------------------------
 configuration of data sharing stored
-------------------------------------
-
+-----------------------------------------------------------------
+*** VOUS DEVEZ VALITER LES ETAPE EN PARRALLELE AVEC LE SECONDAIRE ***
+veillez taper sur ENTRE pour commencer :
 EOF
 
 cat << EOF
---------------------------------
+-------------------------------------------------------------
 [INFO]:storage device detection
---------------------------------
+-------------------------------------------------------------
 wait....
 
 EOF
@@ -229,6 +238,8 @@ sleep 3
 fdisk -l
 
 sleep 3
+
+read -p "[1]:saisir de donnee | ENTRE pour continue " continu
 
 echo -n "select device (example :sdb,sdc,sda...) :"
 read dev
@@ -259,9 +270,9 @@ name_s1=$(uname -n)
       clear
 
       cat << EOF
-------------------------------------------------
+-----------------------------------------------------------------------------
 [INFO]:creating a partition on the second disks
-------------------------------------------------
+-----------------------------------------------------------------------------
 list of parameters to enter :
 * command           : "n"
 * Partition type    : "p"
@@ -271,8 +282,6 @@ list of parameters to enter :
 * command           : "w"
 
 EOF
-
-    read -p " ENTRE pour continue" continu
 
     # création d'une partition sur le second disque
 fdisk /dev/$dev
@@ -326,32 +335,32 @@ resource r0 {
 }
     " > /etc/drbd.d/drbd0.res
 
-    read -p "create-md r0 : ENTRE pour continue" continu
+    read -p "[2]:create-md r0| ENTRE pour continue " continu
     #
     drbdadm create-md r0
 
-    read -p "activation du module drbd : ENTRE pour continue" continu
+    read -p "[3]:activation du module drbd : ENTRE pour continue" continu
     #activation du module drbd
     modprobe drbd
 
-    read -p "demarrage drbd : ENTRE pour continue" continu
+    read -p "[4]:demarrage drbd : ENTRE pour continue" continu
     #demarrage de la configuration de la resource
     drbdadm up r0
 
-    read -p "overview drbd : ENTRE pour continue" continu
+    read -p "[5]:overview drbd : ENTRE pour continue" continu
     #
     drbd-overview
 
-    read -p "synchronisation drbd : ENTRE pour continue" continu
+    read -p "[6]:synchronisation drbd : ENTRE pour continue" continu
 
     ##########uniquemet sur le primay#3#####################
     #on defini ce noeud comme etant le Primary (noeud master) & debut de la synchronisation
     drbdadm -- --overwrite-data-of-peer primary r0
 
     cat << EOF
-    --------------------------------------------------------
-    [INFO]:in 100% enter "Crlt+c" to continue configuration
-    -------------------------------------------------------
+--------------------------------------------------------
+[INFO]:in 100% enter "Crlt+c" to continue configuration
+-------------------------------------------------------
     wait....
 EOF
 
@@ -366,4 +375,24 @@ EOF
     ##formater du lecteur drbd0, en ext4 :
     mkfs.ext4 /dev/drbd0
 
+    cat << EOF
+-------------------------------------------------------------
+[OK]: configuration data sharing stored
+-------------------------------------------------------------
+
+EOF
+
 fi
+
+#--------------------------------------------------------------------
+#  partie 5: Configuration de la Haute disponibilité avec Heartbeat
+#--------------------------------------------------------------------
+
+clear
+
+cat << EOF
+-----------------------------------------------------------------
+[INFO]:configuration of High availability:
+-----------------------------------------------------------------
+
+EOF

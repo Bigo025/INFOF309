@@ -9,9 +9,9 @@
 apt-get update
 
 cat << EOF
------------------------------------
+-----------------------------------------------------------------------------------------------------------
 [INFO]:wait to installing dependencies
------------------------------------
+-----------------------------------------------------------------------
 
 EOF
 
@@ -35,9 +35,9 @@ apt-get install -y drbd8-utils
 clear
 
 cat << EOF
--------------------------------------
+-------------------------------------------------------------------------
 Configuration Ethernet N1
--------------------------------------
+-------------------------------------------------------------------------
 
 EOF
 
@@ -63,9 +63,9 @@ read VIP
 
 clear
 cat << EOF
------------------------------------
+-----------------------------------------------------------------------
 Configuration Ethernet N2
------------------------------------
+-----------------------------------------------------------------------
 
 EOF
     echo -n "Name of the Ethernet interface n3"
@@ -109,12 +109,10 @@ tab=($interface1 $interface2 $interface_v $RIP1 $netmask $gateway $nameserver $V
 ./network_conf_slave.sh "${tab[*]}"
 
 cat << EOF
---------------------------------
+--------------------------------------------------------------------
 [OK]:CONFIGURATION NETWORK
---------------------------------
-Dans cette partie les deux serveur ddoivent etres synchone
+--------------------------------------------------------------------
 
-taper "ENTRE" pour continuer
 EOF
 
 
@@ -122,14 +120,12 @@ EOF
 #  partie 3: Configuration ARP loopback pour le Load balancing
 #--------------------------------------------------------------------
 
-read -p "SUISTE SUR MASTER" continu
-
 clear
 
 cat << EOF
----------------------------------------------
+---------------------------------------------------------------------------
 Configuration ARP loopback for Load balancing
----------------------------------------------
+----------------------------------------------------------------------------
 
 EOF
 
@@ -159,11 +155,14 @@ echo "[INFO]: Restarting the service..."
 #activation de la VIP sur lo:0
 ifup lo:0
 
+cat << EOF
+--------------------------------------------------------------------
+[OK]:ARP loopback for Load balancing
+--------------------------------------------------------------------
 
+EOF
 
-read continu
-
-
+sleep 4
 
 #--------------------------------------------------------------
 #  partie 4: Configuration de drbd8 pour le partage du stocage
@@ -172,16 +171,22 @@ read continu
 clear
 
 cat << EOF
-------------------------------------
-configuration of data sharing stored
-------------------------------------
+------------------------------------------------------------------------
+[INFO]:configuration of data sharing stored
+------------------------------------------------------------------------
+*** VOUS DEVEZ VALITER LES ETAPE EN PARRALLELE AVEC LE SERVEUR ***
+veillez taper sur ENTRE pour commencer :
 
 EOF
 
+read  continu
+
+sleep 2
+
 cat << EOF
---------------------------------
+--------------------------------------------------------------------
 [INFO]:storage device detection
---------------------------------
+--------------------------------------------------------------------
 wait....
 
 EOF
@@ -191,6 +196,8 @@ sleep 3
 fdisk -l
 
 sleep 3
+
+read -p "[1]:saisir de donnee | ENTRE pour continue " continu
 
 echo -n "select device (example :sdb,sdc,sda...) :"
 read dev
@@ -220,9 +227,9 @@ name_s1=$(uname -n)
       clear
 
       cat << EOF
-------------------------------------------------
+-----------------------------------------------------------------------------
 [INFO]:creating a partition on the second disks
-------------------------------------------------
+-----------------------------------------------------------------------------
 list of parameters to enter :
 * command           : "n"
 * Partition type    : "p"
@@ -232,8 +239,6 @@ list of parameters to enter :
 * command           : "w"
 
 EOF
-
-    read -p " ENTRE pour continue" continu
 
     # création d'une partition sur le second disque
 fdisk /dev/$dev
@@ -287,32 +292,32 @@ resource r0 {
 }
     " > /etc/drbd.d/drbd0.res
 
-    read -p "create-md r0 : ENTRE pour continue" continu
+    read -p "[2]:create-md r0| ENTRE pour continue " continu
     #
     drbdadm create-md r0
 
-    read -p "activation du module drbd : ENTRE pour continue" continu
+    read -p "[3]:activation du module drbd : ENTRE pour continue" continu
     #activation du module drbd
     modprobe drbd
 
-    read -p "demarrage drbd : ENTRE pour continue" continu
+    read -p "[4]:demarrage drbd : ENTRE pour continue" continu
     #demarrage de la configuration de la resource
     drbdadm up r0
 
-    read -p "overview drbd : ENTRE pour continue" continu
+    read -p "[5]:overview drbd : ENTRE pour continue" continu
     #
     drbd-overview
 
-    read -p "synchronisation drbd : ENTRE pour continue" continu
+    read -p "[6]:synchronisation drbd : ENTRE pour continue" continu
 
     ##########uniquemet sur le secondary #######################
     #on defini ce noeud comme etant le secondary  & debut de la synchronisation
     # drbdadm secondary r0
 
     cat << EOF
-    --------------------------------------------------------
-    [INFO]:in 100% enter "Crlt+c" to continue configuration
-    -------------------------------------------------------
+---------------------------------------------------------------------
+[INFO]:in 100% enter "Crlt+c" to continue configuration
+---------------------------------------------------------------------
     wait....
 EOF
 
@@ -323,4 +328,24 @@ EOF
 
     sleep 3
 
+    cat << EOF
+-------------------------------------------------------------
+[OK]: configuration data sharing stored
+-------------------------------------------------------------
+
+EOF
+
 fi
+
+#--------------------------------------------------------------------
+#  partie 5: Configuration de la Haute disponibilité avec Heartbeat
+#--------------------------------------------------------------------
+
+clear
+
+cat << EOF
+-----------------------------------------------------------------
+[INFO]:configuration of High availability:
+-----------------------------------------------------------------
+
+EOF
