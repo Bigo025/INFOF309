@@ -207,6 +207,8 @@ read continue
 #  partie 4: Configuration de drbd8 pour le partage du stocage
 #--------------------------------------------------------------
 
+clear
+
 cat << EOF
 ------------------------------------
 configuration of data sharing stored
@@ -229,13 +231,19 @@ fdisk -l
 sleep 3
 
 echo -n "select device (example :sdb,sdc,sda...) :"
-read $dev
+read dev
 
 echo -n "secondary server name (run the \"uname -n\" command on this host) :"
-read $name_s2
+read name_s2
 
 echo -n "password to secure the exchange (must be the same on the secondary host) :"
-read $password
+read password
+
+########################
+dev=sdb
+name_s2=ACME2
+password=acme
+#######################
 
 name_s1=$(uname -n)
 
@@ -267,8 +275,10 @@ EOF
     read -p " ENTRE pour continue" continu
 
     # création d'une partition sur le second disque
-    fdisk /dev/$dev
+fdisk /dev/$dev
 
+un=1
+dev1=$dev$un
     #creation du fichier de configuration pour la resource
     echo "
 
@@ -287,7 +297,7 @@ resource r0 {
 
         net {
                 cram-hmac-alg sha1;
-                shared-secret \"$password\";
+                shared-secret $password;
                 after-sb-0pri disconnect;
                 after-sb-1pri disconnect;
                 after-sb-2pri disconnect;
@@ -302,19 +312,19 @@ resource r0 {
 
         on $name_s1 {
                 device /dev/drbd0;
-                disk /dev/\"$dev\"1;
+                disk /dev/$dev1;
                 address $RIP1:7788;
                 meta-disk internal;
         }
 
         on $name_s2 {
                 device /dev/drbd0;
-                disk /dev/\"$dev\"1;
+                disk /dev/$dev1;
                 address $RIP2:7788;
                 meta-disk internal;
         }
 }
-    " >> /etc/drbd.d/drbd0.res
+    " > /etc/drbd.d/drbd0.res
 
     read -p "create-md r0 : ENTRE pour continue" continu
     #
