@@ -138,31 +138,20 @@ cat << EOF
 -----------------------------------
 Configuration Load balancing
 -----------------------------------
-
 EOF
-
 sleep 4
-cat << EOF
-------------------------------------------------------------------------
-[INFO] : STEP_1 : load balancing on the VIP for packets to port 80
-------------------------------------------------------------------------
-EOF
+
+echo "[INFO] : STEP_1 : load balancing on the $VIP (VIP) for packets to port 80"
 ipvsadm -A -t $VIP:80 -s rr
 sleep 4
 
-cat << EOF
-------------------------------------------------------------------------
-[INFO] : STEP_2 :adds servers $RIP1 in load balancing
-------------------------------------------------------------------------
-EOF
+
+echo "[INFO] : STEP_2 :adds servers $RIP1 in load balancing"
 ipvsadm -a -t $VIP:80 -r $RIP1:80 -g
 sleep 4
 
-cat << EOF
-------------------------------------------------------------------------
-[INFO] : STEP_3 :adds servers $RIP2 in load balancing
-------------------------------------------------------------------------
-EOF
+
+echo "[INFO] : STEP_2 :adds servers $RIP2 in load balancing"
 ipvsadm -a -t $VIP:80 -r $RIP2:80 -g
 sleep 4
 
