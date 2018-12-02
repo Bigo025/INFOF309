@@ -257,6 +257,8 @@ auth 2
  2 crc
 " > /etc/ha.d/authkeys
 
+chmod 600 /etc/ha.d/authkeys
+
 #Configuration de la synchronisation de la table des sessions
 #copier le fichier "lvsstate" dans init.d
 

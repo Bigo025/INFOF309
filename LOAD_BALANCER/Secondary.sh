@@ -124,15 +124,15 @@ iface lo inet loopback
 auto $interface1
 iface $interface1 inet static
 address $RIP1
-#netmask $netmask
-getway $getway
+netmask $netmask
+#getway $getway
 
 ## Configuration de $interface2 en mode Statique
 auto $interface2
 iface $interface2 inet static
 address $RIP2
-#netmask $netmask2
-getway $getway2
+netmask $netmask2
+#getway $getway2
 
 auto $interface3
 iface $interface3 inet dhcp " > /etc/network/interfaces
@@ -255,6 +255,8 @@ auth 2
  1 md5 \"password\"
  2 crc
 " > /etc/ha.d/authkeys
+
+chmod 600 /etc/ha.d/authkeys
 
 #Configuration de la synchronisation de la table des sessions
 #copier le fichier "lvsstate" dans init.d
