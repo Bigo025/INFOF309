@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+# lvsstate      This shell script takes care of starting and stopping
+#               sessions managers for IPVS.
+#
+# chkconfig: -  80 30
+# description: ipvs_syncmaster is a daemon for syncronising sessions\
+#              between two IPVS.
+# processname: ipvs_syncmaster
+# config: /none.cfg
+
+case "$1" in
+ start)
+    /sbin/ipvsadm --start-daemon backup --syncid=1
+    /sbin/ipvsadm --start-daemon master --syncid=1
+ ;;
+ stop)
+    /sbin/ipvsadm --stop-daemon=backup
+    /sbin/ipvsadm --stop-daemon=master
+ ;;
+ restart)
+    $0 stop
+    $0 start
+ ;;
+ status)
+    ipvsadm -L --daemon
+ ;;
+ *)
+    echo "Usage: $0 {start|stop|restart|status}"
+esac
+
+exit 0
