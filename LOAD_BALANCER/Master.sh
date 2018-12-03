@@ -39,6 +39,11 @@ apt-get install -y ldirectord
 #--------------------------------------------------------------------
 clear
 
+read -p "do you want to configured network [Y/N] :" reponse
+
+if [ $reponse = "y" ]
+  then
+
 cat << EOF
 ------------------------------------------------------------------
 Configuration Ethernet N1
@@ -100,6 +105,8 @@ nameserver2=8.8.8.8
 network2=172.16.5.0
 
 VIP=172.16.1.1
+WEP_IP1=172.16.1.5
+WEP_IP2=172.16.1.6
 
 interface3=enp0s9
 ############################
@@ -151,6 +158,16 @@ cat << EOF
 
 EOF
 
+reboot
+
+elif [ $reponse = "n" ]
+
+then
+
+echo "OK Continue configuration"
+
+fi
+
 #--------------------------------------------------------------------
 #  partie 3: Configuration du Load balancing
 #--------------------------------------------------------------------
@@ -168,7 +185,7 @@ echo -n "Name of the secondary Node Load balancer (uname -n) :"
 read name_LB2
 
 ####################
-
+name_LB1=load1
 name_LB2=load2
 ###################
 
@@ -233,6 +250,8 @@ deadtime 6
 # Which port Heartbeat should listen on
 udpport 694
 # Which interfaces Heartbeat sends UDP broadcast traffic on
+
+#ucast $interface1 172.16.1.3
 bcast $interface1
 
 # Automatically fail back to a primary node
@@ -298,6 +317,9 @@ iptables-save
 
 #demarrage de heartbeat
 /etc/init.d/heartbeat start
+
+
+sleep 7
 
 cat << EOF
 ------------------------------------------------------------------------
