@@ -53,7 +53,7 @@ EOF
 
 echo -n "Name of the Ethernet interface n1 :"
 read interface1
-echo -n "IP adress of  interface $interface1 :"
+echo -n "IP adress of  interface N1 :"
 read RIP1
 echo -n "Network adress N1:"
 read network
@@ -67,7 +67,7 @@ read nameserver
 
 echo -n "Name of the Ethernet interface n2 :"
 read interface2
-echo -n "IP adress of  interface $interface2 :"
+echo -n "IP adress of  interface N2 :"
 read RIP2
 echo -n "Network adress N2:"
 read network2
@@ -174,6 +174,29 @@ fi
 #  partie 3: Configuration du Load balancing
 #--------------------------------------------------------------------
 
+
+###############################
+interface1=enp0s3
+RIP1=172.16.1.3
+netmask=255.255.255.0
+gateway=172.16.1.3
+nameserver=8.8.8.8
+network=172.16.1.0
+
+interface2=enp0s8
+RIP2=172.16.5.2
+netmask2=255.255.255.0
+gateway2=172.16.5.2
+nameserver2=8.8.8.8
+network2=172.16.5.0
+
+VIP=172.16.1.1
+WEP_IP1=172.16.1.5
+WEP_IP2=172.16.1.6
+
+interface3=enp0s9
+############################
+
 clear
 
 cat << EOF
@@ -188,7 +211,7 @@ name_LB2=$(uname -n)
 
 ####################
 name_LB1=load1
-
+name_LB2=load2
 ###################
 
 echo "
@@ -233,9 +256,7 @@ sleep 1
 #Recharge de la configuration ARP
 sysctl -p
 
-echo "
-
-logfile /var/log/ha.log
+echo "logfile /var/log/ha.log
 logfacility local0
 debug 0
 
@@ -264,8 +285,7 @@ node $name_LB2 " >  /etc/ha.d/ha.cf
 
 
 #creation des ressources a surveiller
-echo "
-$name_LB1 IPaddr2::$VIP ldirectord::ldirectord.cf
+echo "$name_LB1 IPaddr2::$VIP ldirectord::ldirectord.cf
 " > /etc/ha.d/haresources
 
 

@@ -168,6 +168,29 @@ echo "OK Continue configuration"
 
 fi
 
+
+###############################
+interface1=enp0s3
+RIP1=172.16.1.2
+netmask=255.255.255.0
+gateway=172.16.1.2
+nameserver=8.8.8.8
+network=172.16.1.0
+
+interface2=enp0s8
+RIP2=172.16.5.1
+netmask2=255.255.255.0
+gateway2=172.16.5.1
+nameserver2=8.8.8.8
+network2=172.16.5.0
+
+VIP=172.16.1.1
+WEP_IP1=172.16.1.5
+WEP_IP2=172.16.1.6
+
+interface3=enp0s9
+############################
+
 #--------------------------------------------------------------------
 #  partie 3: Configuration du Load balancing
 #--------------------------------------------------------------------
@@ -208,7 +231,7 @@ quiescent = yes
 # Virtual Server for HTTP
 virtual = $VIP:80
   real = $WEP_IP1:80 gate 1
-	real = $WEP_IP2:80 gate 1
+  real = $WEP_IP2:80 gate 1
 	service = http
 	protocol = tcp
 #	request = \"lbcheck.html\"
@@ -232,9 +255,7 @@ sleep 1
 #Recharge de la configuration ARP
 sysctl -p
 
-echo "
-
-logfile /var/log/ha.log
+echo "logfile /var/log/ha.log
 logfacility local0
 debug 0
 
@@ -263,8 +284,7 @@ node $name_LB2 " >  /etc/ha.d/ha.cf
 
 
 #creation des ressources a surveiller
-echo "
-$name_LB1 IPaddr2::$VIP ldirectord::ldirectord.cf
+echo "$name_LB1 IPaddr2::$VIP ldirectord::ldirectord.cf
 " > /etc/ha.d/haresources
 
 
