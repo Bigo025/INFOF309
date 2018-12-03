@@ -158,6 +158,8 @@ cat << EOF
 
 EOF
 
+read -p "Press ENTER to Reboot" continu
+
 reboot
 
 elif [ $reponse = "n" ]
@@ -239,6 +241,8 @@ virtual = $VIP:80
 	scheduler = rr
 	checktype = negotiate " > /etc/ha.d/ldirectord.cf
 
+read -p "Verification 'ldirectord.cf' Press ENTER Continue" continu
+
 #demarrage du service ldirectord
 
 /etc/init.d/ldirectord stop
@@ -248,7 +252,7 @@ sleep 3
 #configuration a effectuer sur les deux serveur web
 
 echo "
-net.ipv4.ip_forward = 1 " >> /etc/sysctl.conf
+net.ipv4.ip_forward=1 " >> /etc/sysctl.conf
 
 sleep 1
 

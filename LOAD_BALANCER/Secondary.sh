@@ -158,6 +158,8 @@ cat << EOF
 
 EOF
 
+read -p "Press ENTER to Reboot" continu
+
   reboot
 
 elif [ $reponse = "n" ]
@@ -240,6 +242,8 @@ quiescent = yes
 #	receive = \"found\"
 	scheduler = rr
 	checktype = negotiate " > /etc/ha.d/ldirectord.cf
+
+read -p "Verification 'ldirectord.cf' Press ENTER Continue" continu
 
 #stopping du service ldirectord
 
