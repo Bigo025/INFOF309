@@ -14,6 +14,12 @@
 #-----------------------------------------------------------
 #  partie 1: installation des dependencies necessaire
 #-----------------------------------------------------------
+
+read -p "do you want to installing dependencies [Y/N] :" reponse
+
+if [ $reponse = "y" ]
+  then
+
 apt-get update
 
 cat << EOF
@@ -33,6 +39,14 @@ apt-get install -y heartbeat
 
 echo "[INFO]: ldirectord "
 apt-get install -y ldirectord
+
+elif [ $reponse = "n" ]
+
+then
+
+echo "OK Continue configuration"
+
+fi
 
 #--------------------------------------------------------------------
 #  partie 2: Configuration des interfaces reseaux
@@ -168,9 +182,6 @@ then
 
 echo "OK Continue configuration"
 
-fi
-
-
 ###############################
 interface1=enp0s3
 RIP1=172.16.1.2
@@ -192,6 +203,9 @@ WEP_IP2=172.16.1.6
 
 interface3=enp0s9
 ############################
+
+fi
+
 
 #--------------------------------------------------------------------
 #  partie 3: Configuration du Load balancing
@@ -252,7 +266,7 @@ sleep 3
 #configuration a effectuer sur les deux serveur web
 
 echo "
-net.ipv4.ip_forward=1 " >> /etc/sysctl.conf
+net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 
 sleep 1
 

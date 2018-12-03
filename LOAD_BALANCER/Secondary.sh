@@ -14,6 +14,12 @@
 #-----------------------------------------------------------
 #  partie 1: installation des dependencies necessaire
 #-----------------------------------------------------------
+
+read -p "do you want to installing dependencies [Y/N] :" reponse
+
+if [ $reponse = "y" ]
+  then
+
 apt-get update
 
 cat << EOF
@@ -33,6 +39,14 @@ apt-get install -y heartbeat
 
 echo "[INFO]: ldirectord "
 apt-get install -y ldirectord
+
+elif [ $reponse = "n" ]
+
+then
+
+echo "OK Continue configuration"
+
+fi
 
 #--------------------------------------------------------------------
 #  partie 2: Configuration des interfaces reseaux
@@ -168,6 +182,28 @@ then
 
   echo "OK Continue configuration"
 
+  ###############################
+  interface1=enp0s3
+  RIP1=172.16.1.3
+  netmask=255.255.255.0
+  gateway=172.16.1.3
+  nameserver=8.8.8.8
+  network=172.16.1.0
+
+  interface2=enp0s8
+  RIP2=172.16.5.2
+  netmask2=255.255.255.0
+  gateway2=172.16.5.2
+  nameserver2=8.8.8.8
+  network2=172.16.5.0
+
+  VIP=172.16.1.1
+  WEP_IP1=172.16.1.5
+  WEP_IP2=172.16.1.6
+
+  interface3=enp0s9
+  ############################
+
 fi
 
 
@@ -175,29 +211,6 @@ fi
 #--------------------------------------------------------------------
 #  partie 3: Configuration du Load balancing
 #--------------------------------------------------------------------
-
-
-###############################
-interface1=enp0s3
-RIP1=172.16.1.3
-netmask=255.255.255.0
-gateway=172.16.1.3
-nameserver=8.8.8.8
-network=172.16.1.0
-
-interface2=enp0s8
-RIP2=172.16.5.2
-netmask2=255.255.255.0
-gateway2=172.16.5.2
-nameserver2=8.8.8.8
-network2=172.16.5.0
-
-VIP=172.16.1.1
-WEP_IP1=172.16.1.5
-WEP_IP2=172.16.1.6
-
-interface3=enp0s9
-############################
 
 clear
 
