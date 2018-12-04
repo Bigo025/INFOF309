@@ -1,4 +1,8 @@
 #!/bin/bash
+read -p "do you want to installing dependencies [Y/N] :" reponse
+
+if [ $reponse = "y" ]
+  then
 
 apt-get update
 
@@ -15,6 +19,14 @@ apt-get install -y apache2
 echo "[INFO]: drbd8 installation to replicate data from one disk via an Ethernet network."
 apt-get install -y drbd8-utils
 
+elif [ $reponse = "n" ]
+
+then
+
+echo "OK Continue configuration"
+
+fi
+
 #--------------------------------------------------------------------
 #  partie 2: Configuration des interfaces reseaux
 #--------------------------------------------------------------------
@@ -27,57 +39,57 @@ Configuration Ethernet N1
 
 EOF
 
-echo -n "Name of the Ethernet interface n1 :"
-read interface1
-echo -n "IP adress of  interface $interface1 :"
-read RIP1
-echo -n "Network adress N1:"
-read network
-echo -n "Netmask :"
-read netmask
-echo -n "Gateway :"
-read gateway
-echo -n "DNS Server :"
-read nameserver
-
-
-echo -n "Name of the Ethernet interface n2 :"
-read interface2
-echo -n "IP adress of  interface $interface2 :"
-read RIP2
-echo -n "Network adress N2:"
-read network2
-echo -n "Netmask :"
-read netmask2
-echo -n "Gateway :"
-read gateway2
-echo -n "DNS Server :"
-read nameserver2
-
-echo -n "VIP adress  :"
-read VIP
-
-
-clear
-
-###############################
-interface1=enp0s3
-RIP1=172.16.1.5
-netmask=255.255.255.0
-gateway=172.16.1.5
-nameserver=8.8.8.8
-network=172.16.1.0
-
-interface2=enp0s8
-RIP2=172.16.10.2
-netmask2=255.255.255.0
-gateway2=172.16.10.2
-nameserver2=8.8.8.8
-network2=172.16.10.0
-
-VIP=172.16.1.1
-
-interface3=enp0s9
+# echo -n "Name of the Ethernet interface n1 :"
+# read interface1
+# echo -n "IP adress of  interface $interface1 :"
+# read RIP1
+# echo -n "Network adress N1:"
+# read network
+# echo -n "Netmask :"
+# read netmask
+# echo -n "Gateway :"
+# read gateway
+# echo -n "DNS Server :"
+# read nameserver
+#
+#
+# echo -n "Name of the Ethernet interface n2 :"
+# read interface2
+# echo -n "IP adress of  interface $interface2 :"
+# read RIP2
+# echo -n "Network adress N2:"
+# read network2
+# echo -n "Netmask :"
+# read netmask2
+# echo -n "Gateway :"
+# read gateway2
+# echo -n "DNS Server :"
+# read nameserver2
+#
+# echo -n "VIP adress  :"
+# read VIP
+#
+#
+# clear
+#
+# ###############################
+# interface1=enp0s3
+# RIP1=172.16.1.5
+# netmask=255.255.255.0
+# gateway=172.16.1.5
+# nameserver=8.8.8.8
+# network=172.16.1.0
+#
+# interface2=enp0s8
+# RIP2=172.16.10.2
+# netmask2=255.255.255.0
+# gateway2=172.16.10.2
+# nameserver2=8.8.8.8
+# network2=172.16.10.0
+#
+# VIP=172.16.1.1
+#
+# interface3=enp0s9
 ############################
 
 cat << EOF
@@ -101,35 +113,36 @@ sysctl -p
 
 	## Copie des paramètres dans le fichier de configuration
 
+# echo "
+# source /etc/network/interfaces.d/*
+#
+# ## the loopback network interface
+# auto lo
+# iface lo inet loopback
+#
+# ## Configuration de $interface1 en mode Statique
+# auto $interface1
+# iface $interface1 inet static
+# address $RIP1
+# netmask $netmask
+# getway $getway
+#
+# ## Configuration de $interface2 en mode Statique
+# auto $interface2
+# iface $interface2 inet static
+# address $RIP2
+# netmask $netmask2
+# getway $getway2
+#
+# auto $interface3
+# iface $interface3 inet dhcp
+
 echo "
-source /etc/network/interfaces.d/*
-
-## the loopback network interface
-auto lo
-iface lo inet loopback
-
-## Configuration de $interface1 en mode Statique
-auto $interface1
-iface $interface1 inet static
-address $RIP1
-netmask $netmask
-getway $getway
-
-## Configuration de $interface2 en mode Statique
-auto $interface2
-iface $interface2 inet static
-address $RIP2
-netmask $netmask2
-getway $getway2
-
-auto $interface3
-iface $interface3 inet dhcp
-
 ## Configuration de l'adresse IP virtuelle sur loopback en mode Statique
 auto lo:0
 iface lo:0 inet static
-address $VIP
-netmask 255.255.255.255 " > /etc/network/interfaces
+address 127.16.1.1
+netmask 255.255.255.255 " >> /etc/network/interfaces
 
 
 ## redémarrage du service...
@@ -192,16 +205,19 @@ read name_s2
 
 echo -n "password to secure the exchange (must be the same on the secondary host) :"
 read password
-########################
-dev=sdb
-name_s2=ACME1
-password=acme
-#######################
 
 name_s1=$(uname -n)
 
+########################
+dev=xvdb
+password=acme
+
+name_s2=ip-172-16-5-162
+name_s1=ip-172-16-5-149
+#######################
+
   #si c'est le disk principale ne rien faire
-  if [$dev = "sda"]
+  if [$dev = "xvda"]
 
     then
 

@@ -302,7 +302,7 @@ node $name_LB2 " >  /etc/ha.d/ha.cf
 
 
 #creation des ressources a surveiller
-echo "$name_LB1 IPaddr2::$VIP ldirectord::ldirectord.cf
+echo "$name_LB1 IPaddr2::$VIP/32/$interface1 ldirectord::ldirectord.cf
 " > /etc/ha.d/haresources
 
 
