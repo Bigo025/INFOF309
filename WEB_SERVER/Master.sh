@@ -211,6 +211,8 @@ name_s1=ip-172-16-5-162
 name_s2=ip-172-16-5-149
 password=acme
 #######################
+$RIP1=172.16.5.162
+$RIP2=172.16.5.149
 
 
   #si c'est le disk principale ne rien faire

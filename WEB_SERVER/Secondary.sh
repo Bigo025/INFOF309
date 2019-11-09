@@ -215,6 +215,8 @@ password=acme
 name_s2=ip-172-16-5-162
 name_s1=ip-172-16-5-149
 #######################
+$RIP2=172.16.5.162
+$RIP1=172.16.5.149
 
   #si c'est le disk principale ne rien faire
   if [$dev = "xvda"]
